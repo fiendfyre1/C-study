@@ -1,0 +1,216 @@
+
+#include<stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#pragma warning(disable:4996)
+
+struct book {
+    char title[50];
+    char author[50];
+    int ISBN;
+    bool rend;
+};
+
+void search(struct book* p, int count) {
+    int book_num;
+    bool found = false;
+
+    printf("Enter the book IBSN : ");
+    scanf("%d", &book_num);
+
+    for (int i = 0; i < count; i++) {
+        if (book_num == p[i].ISBN) {
+            found = true;
+            printf("this book's information :\n title : %s\n author : %s\n ISBN : %d\n rent : %s\n", p[i].title, p[i].author, p[i].ISBN, p[i].rend ? "true" : "false");
+            break;
+        }
+    }
+    if (!found) {
+        printf("There isn't a correct ISBN number.\n");
+    }
+}
+
+void booking(struct book* p, int count) {
+    int book_num;
+    bool book_found = false;
+
+    printf("What book are you booking? Please give me an ISBN number: ");
+    scanf("%d", &book_num);
+
+    for (int i = 0; i < count; i++) {
+        if (book_num == p[i].ISBN) {
+            book_found = true;
+            if (p[i].rend) {
+                printf("This book is already booked.\n");
+            }
+            else {
+                printf("%s is booked successfully.\n", p[i].title);
+                p[i].rend = true;
+            }
+            break; // 예약된 책을 찾았으므로 반복문 탈출
+        }
+    }
+    if (!book_found) {
+        printf("There is no book with the given ISBN.\n");
+    }
+}
+
+void return_book(struct book* p, int count) {
+    int book_num;
+    bool book_found = false;
+
+    printf("Please give me the ISBN number of the returning book: ");
+    scanf("%d", &book_num);
+
+    for (int i = 0; i < count; i++) {
+        if (book_num == p[i].ISBN) {
+            book_found = true;
+            if (p[i].rend) {
+                printf("%s is returned successfully.\n", p[i].title);
+                p[i].rend = false;
+            }
+            else {
+                printf("There is an error.\n");
+            }
+            break; // 반환된 책을 찾았으므로 반복문 탈출
+        }
+    }
+    if (!book_found) {
+        printf("There is no such book.\n");
+    }
+}
+
+void input_book(struct book* p, int* count) {
+    printf("Enter the title of the book: ");
+    scanf("%s", p[*count].title);
+    printf("Enter the author of the book: ");
+    scanf("%s", p[*count].author);
+    printf("Enter the ISBN of the book: ");
+    scanf("%d", &p[*count].ISBN);
+    p[*count].rend = false;
+    (*count)++;
+}
+
+void modify(struct book* p, int* count) {
+    int book_num;
+    int temp_rend;
+
+    printf("Enter the ISBN of the book you want to modify:\n");
+    scanf("%d", &book_num);
+
+    for (int i = 0; i < *count; i++) {
+        if (book_num == p[i].ISBN) {
+            printf("Modify this book:\n");
+
+            printf("title: ");
+            scanf("%s", p[i].title);
+
+            printf("author: ");
+            scanf("%s", p[i].author);
+
+            printf("ISBN: ");
+            scanf("%d", &p[i].ISBN);
+
+            printf("rend (0 for false, 1 for true): ");
+            scanf("%d", &temp_rend);
+            p[i].rend = temp_rend == 1 ? true : false;
+
+            printf("It is modified successfully.\n");
+            return;
+        }
+    }
+    printf("It is not a correct ISBN.\n");
+}
+
+void remove_book(struct book* p, int* count) {
+    int book_num;
+    bool found = false;
+    printf("Enter the ISBN number to delete: ");
+    scanf("%d", &book_num);
+
+    for (int i = 0; i < *count; i++) {
+        if (book_num == p[i].ISBN) {
+            found = true;
+            printf("This book is deleted.\n");
+
+            for (int j = i; j < *count - 1; j++) {
+                p[j] = p[j + 1];
+            }
+
+            (*count)--;
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("There is no book with the given ISBN number.\n");
+    }
+}
+
+void display_all_books(struct book*
+
+    p, int count) {
+    printf("All books in the library:\n");
+    for (int i = 0; i < count; i++) {
+        printf("%d : title(%s) author(%s) ISBN(%d) rend(%s)\n", i + 1, p[i].title, p[i].author, p[i].ISBN, p[i].rend ? "true" : "false");
+    }
+}
+
+int main() {
+    int choice;
+    int count = 0;
+    const int initial_size = 10; // 초기에 할당할 메모리 크기
+
+    struct book* p = (struct book*)malloc(initial_size * sizeof(struct book));
+    if (p == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
+    }
+
+    do {
+        printf("\n1. Search for a book (search by title or author)\n");
+        printf("2. Book a book\n");
+        printf("3. Return a book\n");
+        printf("4. Add a new book\n");
+        printf("5. Modify book information\n");
+        printf("6. Delete a book\n");
+        printf("7. View all books\n");
+        printf("8. Exit\n");
+        printf("Enter the number: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 1:
+            search(p, count);
+            break;
+        case 2:
+            booking(p, count);
+            break;
+        case 3:
+            return_book(p, count);
+            break;
+        case 4:
+            input_book(p, &count);
+            break;
+        case 5:
+            modify(p, &count);
+            break;
+        case 6:
+            remove_book(p, &count);
+            break;
+        case 7:
+            display_all_books(p, count);
+            break;
+        case 8:
+            printf("Goodbye.\n");
+            break;
+        default:
+            printf("Invalid choice. Please try again.\n");
+            break;
+        }
+    } while (choice != 8);
+
+    free(p);
+    return 0;
+}
